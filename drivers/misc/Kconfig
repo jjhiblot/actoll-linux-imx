@@ -5,6 +5,20 @@
 
 menu "Misc devices"
 
+config NORCO_GPIO_INIT
+	tristate "Norco GPIO init driver"
+	default n
+	help
+	    Driver to initialize some GPIOs during startup
+
+config NORCO_MCX_MCU
+	tristate "Norco MXC MCU driver"
+	default n
+	depends on I2C
+	help
+	    Driver to communicate with the companion chip on
+	    norco's board
+
 config SENSORS_LIS3LV02D
 	tristate
 	depends on INPUT
