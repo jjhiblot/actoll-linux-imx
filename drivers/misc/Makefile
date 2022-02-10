@@ -3,7 +3,7 @@
 # Makefile for misc devices that really don't fit anywhere else.
 #
 obj-y += gpio-init.o
-obj-y += mxc_mcu.o
+#obj-y += mxc_mcu.o
 obj-$(CONFIG_IBM_ASM)		+= ibmasm/
 obj-$(CONFIG_IBMVMC)		+= ibmvmc.o
 obj-$(CONFIG_AD525X_DPOT)	+= ad525x_dpot.o
