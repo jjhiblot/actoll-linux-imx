@@ -10,6 +10,8 @@
 #include <linux/proc_fs.h>
 #include <linux/module.h>
 #include <linux/bcd.h>
+#include <linux/seq_file.h>
+
 #define DRV_VERSION "0.0.3"
 #define DEV_NAME  "mcu_i2c"
 #define MAX_MCU_BUF 32
@@ -105,39 +107,44 @@ void mcu_poweroff(void){
 	mcu_write(gDrv->mcu_client, buff, sizeof(buff));
 }
 EXPORT_SYMBOL(mcu_poweroff);
-static int f_read_proc(struct file *file, char *buf,char **start,off_t pos,int count,
-		int *eof,void *data)
+
+static int mxc_mcu_proc_show(struct seq_file *m, void *v)
 {
-	struct mcu_driver *drv = PDE_DATA(file_inode(file));
-	 int model_id, len=0, i;
-        char buff[256];
+	struct mcu_driver *drv = (struct mcu_driver *) m->private;
+	int model_id, i;
 	int ret;
-        if(data == NULL)
-                return 0;
-        ret = mcu_read(drv->mcu_client, drv->mcu_buff, sizeof(drv->mcu_buff));
-	if(ret < 0){
+
+	ret = mcu_read(drv->mcu_client, drv->mcu_buff, sizeof(drv->mcu_buff));
+	if(ret < 0) {
 		printk(KERN_ERR "mcu i2c io err=%d \n", ret);
-	return 0;
+		return -EIO;
 	}
 	model_id = ((drv->mcu_buff[REG_MODEL_H])<<8)|(drv->mcu_buff[REG_MODEL_L]);
-	len += sprintf(buff+len,"firmware_ver = V%02X\n", drv->mcu_buff[REG_VERSION]);
-	len += sprintf(buff+len,"board_id = %d\n", model_id);
-	len += sprintf(buff+len,"SN = ");
+	seq_printf(m, "firmware_ver = V%02X\n", drv->mcu_buff[REG_VERSION]);
+	seq_printf(m, "board_id = %d\n", model_id);
+	seq_printf(m, "SN = ");
 	for(i=0; i<8; i++)
-		len += sprintf(buff+len,"%02X", drv->mcu_buff[REG_SERIAL_1+i]);
-	len += sprintf(buff+len,"\n");
-        len = strlen(buff)+1;
-        return sprintf(buf,"%s", buff);
+		seq_printf(m, "%02X", drv->mcu_buff[REG_SERIAL_1+i]);
+	seq_printf(m, "\n");
+	return 0;
 }
 
-static const struct file_operations mcu_proc_fops = {
-        .owner          = THIS_MODULE,
-        .read           = f_read_proc,
-	.llseek 	= default_llseek,
+static int mxc_mcu_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, mxc_mcu_proc_show, PDE_DATA(inode));
+}
+
+static const struct proc_ops mcu_proc_fops = {
+	.proc_open	= mxc_mcu_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
 };
+
 static void create_proc(char* name, void* data){
-        struct proc_dir_entry *entry;
-		entry= proc_create_data(name, S_IRUGO|S_IWUGO, NULL, &mcu_proc_fops, data);
+	struct proc_dir_entry *entry;
+
+	entry= proc_create_data(name, S_IRUGO|S_IWUGO, NULL, &mcu_proc_fops, data);
 	if (!entry){
 		printk("create_proc error \n");
 	} 
