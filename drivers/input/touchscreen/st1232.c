@@ -166,7 +166,7 @@ static const struct st_chip_info st1232_chip_info = {
 
 static const struct st_chip_info st1633_chip_info = {
 	.have_z		= false,
-	.max_x		= 0x13f, /* 320 - 1 */
+	.max_x		= 0x31f, /* 800 - 1 */
 	.max_y		= 0x1df, /* 480 -1 */
 	.max_area	= 0x00,
 	.max_fingers	= 5,
