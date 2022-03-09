@@ -268,6 +268,7 @@ static void kernel_shutdown_prepare(enum system_states state)
  *
  *	Shutdown everything and perform a clean system halt.
  */
+extern void mcu_poweroff(void);
 void kernel_halt(void)
 {
 	kernel_shutdown_prepare(SYSTEM_HALT);
@@ -276,6 +277,7 @@ void kernel_halt(void)
 	pr_emerg("System halted\n");
 	kmsg_dump(KMSG_DUMP_SHUTDOWN);
 	machine_halt();
+	mcu_poweroff();
 }
 EXPORT_SYMBOL_GPL(kernel_halt);
 
