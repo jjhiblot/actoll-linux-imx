@@ -394,9 +394,16 @@
 	};
 };
 
+&wdog1 {
+    status = "okay";
+};
+
+&wdog2 {
+    status = "disabled";
+};
+
 &gpc {
 	fsl,ldo-bypass = <0>; // JJH TODO check what this value is for (was 0x1)
-	fsl,wdog-reset = <1>; // JJH TODO check what this value is for (was 0x2)
 };
 
 &ipu1_csi1_from_ipu1_csi1_mux {
