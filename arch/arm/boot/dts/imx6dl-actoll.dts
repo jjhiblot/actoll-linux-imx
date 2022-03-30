@@ -450,7 +450,7 @@
 
 &usdhc3 {
 	bus-width = <0x4>;
-	cd-gpios = <&gpio7 0 0>;
+	cd-gpios = <&gpio7 0 GPIO_ACTIVE_LOW>;
 	/delete-property/ wp-gpios;
 };
 
